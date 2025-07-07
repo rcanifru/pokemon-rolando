@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import './PokemonFetcher.css';
 
@@ -10,7 +11,6 @@ const PokemonFetcher = () => {
   const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
   const [errorBusqueda, setErrorBusqueda] = useState(null);
 
-  // Mostrar 4 Pokémon aleatorios al inicio
   useEffect(() => {
     const fetchAleatorios = async () => {
       const fetched = [];
@@ -33,7 +33,6 @@ const PokemonFetcher = () => {
     fetchAleatorios();
   }, []);
 
-  // 🔍 Búsqueda optimizada por nombre o tipo
   const buscarPokemon = async () => {
     if (!busqueda) {
       setResultados([]);
@@ -46,16 +45,14 @@ const PokemonFetcher = () => {
 
       const coincidencias = [];
 
-      // 1. Buscar por nombre en la lista general
       const resLista = await fetch('https://pokeapi.co/api/v2/pokemon?limit=898');
       const dataLista = await resLista.json();
       const porNombre = dataLista.results.filter(p =>
         p.name.toLowerCase().includes(busqueda.toLowerCase())
-      ).slice(0, 10); // máximo 10
+      ).slice(0, 10);
 
       coincidencias.push(...porNombre);
 
-      // 2. Si no hay coincidencias por nombre, buscar por tipo
       if (coincidencias.length === 0) {
         const resTipo = await fetch(`https://pokeapi.co/api/v2/type/${busqueda.toLowerCase()}`);
         if (!resTipo.ok) throw new Error('Tipo no encontrado');
@@ -66,7 +63,6 @@ const PokemonFetcher = () => {
         }
       }
 
-      // 3. Obtener detalles completos solo de los seleccionados
       const detalles = [];
       for (const p of coincidencias) {
         const pokeRes = await fetch(p.url);
@@ -95,7 +91,13 @@ const PokemonFetcher = () => {
           <div key={pokemon.id} className="pokemon-card">
             <h3>{pokemon.nombre.charAt(0).toUpperCase() + pokemon.nombre.slice(1)}</h3>
             <img src={pokemon.imagen} alt={pokemon.nombre} />
-            <p><strong>Tipos:</strong> {pokemon.tipos.join(', ')}</p>
+            <div>
+              {pokemon.tipos.map(tipo => (
+                <span key={tipo} className={`pokemon-type type-${tipo.toLowerCase()}`}>
+                  {tipo.toUpperCase()}
+                </span>
+              ))}
+            </div>
           </div>
         ))}
       </div>
@@ -108,31 +110,11 @@ const PokemonFetcher = () => {
           placeholder="Ej: bulbasaur o water"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          style={{
-            padding: '10px',
-            borderRadius: '6px',
-            border: '1px solid #ccc',
-            fontSize: '16px',
-            width: '300px'
-          }}
         />
-        <button
-          onClick={buscarPokemon}
-          style={{
-            padding: '10px 16px',
-            borderRadius: '6px',
-            backgroundColor: '#007bff',
-            color: '#fff',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
-        >
-          Buscar
-        </button>
+        <button onClick={buscarPokemon}>Buscar</button>
       </div>
 
-      {cargandoBusqueda && <p style={{ color: '#fff' }}>Buscando...</p>}
+      {cargandoBusqueda && <p style={{ color: '#555' }}>Buscando...</p>}
       {errorBusqueda && <p className="error">{errorBusqueda}</p>}
 
       {resultados.length > 0 && (
@@ -141,7 +123,13 @@ const PokemonFetcher = () => {
             <div key={pokemon.id} className="pokemon-card">
               <h3>{pokemon.nombre.charAt(0).toUpperCase() + pokemon.nombre.slice(1)}</h3>
               <img src={pokemon.imagen} alt={pokemon.nombre} />
-              <p><strong>Tipos:</strong> {pokemon.tipos.join(', ')}</p>
+              <div>
+                {pokemon.tipos.map(tipo => (
+                  <span key={tipo} className={`pokemon-type type-${tipo.toLowerCase()}`}>
+                    {tipo.toUpperCase()}
+                  </span>
+                ))}
+              </div>
             </div>
           ))}
         </div>
